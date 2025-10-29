@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EASTWEST BANK Photostrip</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #ffffff;
+            color: #1a1a1a;
+            background-image: linear-gradient(to bottom, #ffffff, #ffffff);
+            min-height: 100vh;
+        }
+        
+        .camera-container {
+            position: relative;
+            overflow: hidden;
+            border-radius: 12px;
+            background-color: #000;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .photo-slot {
+            background-color: #000;
+            border: 3px solid rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-radius: 4px;
+            box-shadow: 
+                inset 0 0 0 2px rgba(255,255,255,0.1),
+                0 2px 8px rgba(0,0,0,0.3);
+            position: relative;
+            margin-bottom: 30px;
+        }
+        
+        .photo-slot::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #333, #666, #333);
+            border-radius: 3px;
+            z-index: -1;
+        }
+        
+        .photo-slot img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .countdown {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 8rem;
+            font-weight: 700;
+            color: white;
+            z-index: 10;
+            opacity: 0;
+            text-shadow: 0 0 20px rgba(255,255,255,0.7);
+        }
+        
+        .countdown.active {
+            opacity: 1;
+        }
+        
+        .flash {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: white;
+            opacity: 0;
+            z-index: 5;
+        }
+        
+        .error-message {
+            background-color: rgba(0,0,0,0.8);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid rgba(255,0,0,0.3);
+        }
+        
+        .camera-controls {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            z-index: 20;
+        }
+        
+        .between-photos-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px 0;
+            gap: 15px;
+        }
+        
+        .photostrip-container {
+            background: linear-gradient(to bottom, #87CEEB, #87CEEB);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgb(0, 0, 0);
+            border: 4px solid #000000;
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            max-width: 450px;
+            margin: 0 auto;
+        }
+        
+        @media (max-width: 768px) {
+            .photostrip-container {
+                max-width: 90vw;
+            }
+        }
+        
+        .photostrip-footer {
+            border-top: 1px solid rgba(0,0,0,0.1);
+            padding-top: 20px;
+            margin-top: 6px;
+            text-align: center;
+        }
+        
+        .photostrip-footer p {
+            color: #1a1a1a;
+            font-weight: 600;
+        }
+        
+        .photostrip-footer p:nth-child(2) {
+            color: #2a2a2a;
+            font-weight: 500;
+        }
+        
+        .photostrip-footer p:nth-child(3) {
+            color: #4a4a4a;
+            font-weight: 400;
+        }
+        
+        .btn {
+            background-image: linear-gradient(135deg, #87CEEB, #87CEEB);
+            color: white;
+            font-weight: 425;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        
+        .btn:hover:not(:disabled) {
+            background-image: linear-gradient(135deg, #87CEEB, #87CEEB);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+        }
+        
+        .btn:active:not(:disabled) {
+            transform: translateY(0);
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .btn-primary {
+            background-image: linear-gradient(135deg, #87CEEB, #87CEEB);
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            background-image: linear-gradient(135deg, #4f8df9, #3573f0);
+        }
+        
+        .btn-secondary {
+            background-image: linear-gradient(135deg, #4b5563, #374151);
+        }
+        
+        .btn-secondary:hover:not(:disabled) {
+            background-image: linear-gradient(135deg, #5b6675, #475163);
+        }
+        
+        .camera-btn {
+            background-color: rgba(0,0,0,0.6);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            width: 40px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        
+        .camera-btn:hover:not(:disabled) {
+            background-color: rgba(0,0,0,0.8);
+            transform: scale(1.1);
+        }
+        
+        .camera-btn:active:not(:disabled) {
+            transform: scale(1);
+        }
+        
+        .photostrip-container .EASTWEST BANK-text {
+            color: #1a1a1a;
+            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body class="p-4">
+    <div class="max-w-4xl mx-auto">
+        <header class="text-center mb-8">
+            <h1 class="text-6xl font-bold text-blue-900">EASTWEST BANK</h1>
+        </header>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Camera Section -->
+            <div>
+                <div class="camera-container aspect-video mb-5 relative">
+                    <video id="video" class="w-full h-full object-cover" autoplay playsinline></video>
+                    <div id="cameraError" class="error-message absolute inset-0 flex items-center justify-center hidden">
+                        <div>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-3 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            <p class="text-lg font-medium">Camera access required</p>
+                            <p class="text-sm text-gray-400 mt-2">Please allow camera access in your browser settings</p>
+                        </div>
+                    </div>
+                    <div class="camera-controls">
+                        <button id="switchCameraBtn" class="camera-btn" aria-label="Switch Camera">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="countdown" id="countdown">3</div>
+                    <div class="flash" id="flash"></div>
+                </div>
+                
+                <div class="flex gap-4 justify-center">
+                    <button id="startBtn" class="btn btn-primary px-6 py-3">
+                        Start Photobooth
+                    </button>
+                    <button id="resetBtn" class="btn btn-secondary px-6 py-3" disabled>
+                        Reset
+                    </button>
+                </div>
+                
+                <!-- Between Photos Controls (initially hidden) -->
+                <div id="betweenPhotosControls" class="between-photos-controls mt-4 hidden">
+                    <button id="switchCameraBetweenBtn" class="btn btn-secondary flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        Switch Camera
+                    </button>
+                    <button id="continueBtn" class="btn btn-primary">
+                        Continue
+                    </button>
+                </div>
+                
+                <div id="statusMessage" class="mt-4 text-center text-sm text-gray-600"></div>
+            </div>
+            
+            <!-- Photostrip Section -->
+            <div>
+                <div class="photostrip-container">
+                    <div class="photostrip-logo text-center mb-5">
+                        <img src="./EASTWEST BANK-logo.png" alt="EASTWEST BANK Logo" class="mx-auto" style="max-width: 400px; height: 150px;">
+                    </div>
+                    <div class="photostrip-header text-center mb-5">
+                    </div>
+                    
+                    <!-- EASTWEST BANK Group Photo -->
+                    <div class="EASTWEST BANK-group-photo mb-12" style="width: 410px; height: 200px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                        <img id="EASTWEST BANKGroupPhoto" src="./EASTWEST BANK-group.png" alt="EASTWEST BANK Group" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                    </div>
+
+                    <div id="photoStripContainer" class="flex flex-col gap-4 mb-12">
+                        <!-- Photo slots will be generated here -->
+                    </div>
+
+                    <div class="photostrip-footer">
+                        <p class="text-[18px] text-gray-400">MEMORIES FROM THE EVENT</p>
+                        <p class="text-[8px] text-gray-450">iveen_space</p>
+                    </div>
+                </div>
+                
+                <div class="mt-5 text-center">
+                    <button id="downloadBtn" class="btn btn-primary px-6 py-3" disabled>
+                        Download Photostrip
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <canvas id="canvas" class="hidden"></canvas>
+    <canvas id="photoStripCanvas" class="hidden"></canvas>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // DOM elements
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('canvas');
+            const photoStripCanvas = document.getElementById('photoStripCanvas');
+            const photoStripContainer = document.getElementById('photoStripContainer');
+            const startBtn = document.getElementById('startBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const countdown = document.getElementById('countdown');
+            const flash = document.getElementById('flash');
+            const cameraError = document.getElementById('cameraError');
+            const statusMessage = document.getElementById('statusMessage');
+            const switchCameraBtn = document.getElementById('switchCameraBtn');
+            const betweenPhotosControls = document.getElementById('betweenPhotosControls');
+            const switchCameraBetweenBtn = document.getElementById('switchCameraBetweenBtn');
+            const continueBtn = document.getElementById('continueBtn');
+            
+            // Variables
+            let stream = null;
+            let photosTaken = 0;
+            let photoSlots = [];
+            let capturedPhotos = [];
+            let isCapturing = false;
+            let isPaused = false;
+            const photoCount = 3;
+            let currentFacingMode = 'user';
+            let switchRetryCount = 0;
+            const maxRetries = 2;
+            
+            // Initialize camera
+            async function initCamera(facingMode = 'user') {
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                }
+                
+                try {
+                    statusMessage.textContent = "Requesting camera access...";
+                    currentFacingMode = facingMode;
+                    
+                    stream = await navigator.mediaDevices.getUserMedia({ 
+                        video: { 
+                            facingMode: facingMode,
+                            width: { ideal: 1280 },
+                            height: { ideal: 720 }
+                        }, 
+                        audio: false 
+                    });
+                    
+                    video.srcObject = stream;
+                    startBtn.disabled = false;
+                    statusMessage.textContent = `Camera ready (${facingMode === 'user' ? 'front' : 'back'})! Click 'Start Photobooth' to begin.`;
+                    cameraError.classList.add('hidden');
+                    switchCameraBtn.disabled = false;
+                    
+                } catch (err) {
+                    console.error('Camera error:', err);
+                    cameraError.classList.remove('hidden');
+                    statusMessage.textContent = `Error accessing ${facingMode === 'user' ? 'front' : 'back'} camera.`;
+                    
+                    if (facingMode === 'user') {
+                        statusMessage.textContent = "Front camera not available. Trying back camera...";
+                        setTimeout(() => {
+                            initCamera('environment');
+                        }, 1000);
+                    } else if (facingMode === 'environment') {
+                        statusMessage.textContent = "Back camera not available. Trying front camera...";
+                        setTimeout(() => {
+                            initCamera('user');
+                        }, 1000);
+                    } else {
+                        startBtn.disabled = true;
+                        switchCameraBtn.disabled = true;
+                    }
+                }
+            }
+            
+            // Switch camera
+            async function switchCamera() {
+                if (switchRetryCount >= maxRetries) {
+                    statusMessage.textContent = "Camera switching failed after retries.";
+                    return;
+                }
+                const newFacingMode = currentFacingMode === 'user' ? 'environment' : 'user';
+                switchCameraBtn.disabled = true;
+                switchCameraBetweenBtn.disabled = true;
+                statusMessage.textContent = `Switching to ${newFacingMode === 'user' ? 'front' : 'back'} camera...`;
+                
+                try {
+                    await initCamera(newFacingMode);
+                    switchRetryCount = 0;
+                    switchCameraBetweenBtn.disabled = false;
+                } catch (err) {
+                    console.error('Error switching camera:', err);
+                    switchRetryCount++;
+                    statusMessage.textContent = `Failed to switch camera. Using ${currentFacingMode === 'user' ? 'front' : 'back'} camera.`;
+                    switchCameraBtn.disabled = false;
+                    switchCameraBetweenBtn.disabled = false;
+                }
+            }
+            
+            // Create photo slots
+            function createPhotoSlots() {
+                photoStripContainer.innerHTML = '';
+                photoSlots = [];
+                capturedPhotos = [];
+                
+                for (let i = 0; i < photoCount; i++) {
+                    const slot = document.createElement('div');
+                    slot.className = 'photo-slot mb-4';
+                    slot.style.height = '220px';
+                    
+                    const placeholderContent = document.createElement('div');
+                    placeholderContent.className = 'flex flex-col items-center justify-center';
+                    placeholderContent.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10
