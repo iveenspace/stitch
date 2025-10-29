@@ -285,14 +285,14 @@
             <div>
                 <div class="photostrip-container">
                     <div class="photostrip-logo text-center mb-5">
-                        <img src="./EASTWEST BANK-logo.png" alt="EASTWEST BANK Logo" class="mx-auto" style="max-width: 400px; height: 150px;">
+                        <img src="./EASTWEST BANK_logo.png" alt="EASTWEST BANK Logo" class="mx-auto" style="max-width: 400px; height: 150px;">
                     </div>
                     <div class="photostrip-header text-center mb-5">
                     </div>
                     
                     <!-- EASTWEST BANK Group Photo -->
                     <div class="EASTWEST BANK-group-photo mb-12" style="width: 410px; height: 200px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
-                        <img id="EASTWEST BANKGroupPhoto" src="./EASTWEST BANK-group.png" alt="EASTWEST BANK Group" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                        <img id="EASTWEST BANKGroupPhoto" src="./EASTWEST BANK.png" alt="EASTWEST BANK" style="width: 100%; height: 100%; object-fit: cover; display: block;">
                     </div>
 
                     <div id="photoStripContainer" class="flex flex-col gap-4 mb-12">
